@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox
+    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDesktopWidget
 )
 import sqlite3
 import hashlib
@@ -10,7 +10,18 @@ class RegisterWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QuietQuill - Register")
-        self.setGeometry(100, 100, 300, 250)
+
+        # Set window size to 80% of the screen
+        screen = QDesktopWidget().screenGeometry()
+        width = int(screen.width() * 0.8)
+        height = int(screen.height() * 0.8)
+        self.setGeometry(
+            (screen.width() - width) // 2,
+            (screen.height() - height) // 2,
+            width,
+            height
+        )
+
         self.setup_ui()
 
     def setup_ui(self):

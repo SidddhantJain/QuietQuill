@@ -4,7 +4,7 @@ import datetime
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QTextEdit, QPushButton,
     QFileDialog, QMessageBox, QLabel, QHBoxLayout, QInputDialog,
-    QComboBox, QLineEdit, QListWidget, QListWidgetItem
+    QComboBox, QLineEdit, QListWidget, QListWidgetItem, QDesktopWidget
 )
 from PyQt5.QtGui import QTextImageFormat
 from PyQt5.QtCore import Qt
@@ -53,7 +53,18 @@ class EditorWindow(QWidget):
         os.makedirs(self.entry_dir, exist_ok=True)
 
         self.setWindowTitle("📝 QuietQuill - Editor")
-        self.setGeometry(250, 200, 800, 600)
+
+        # Set window size to 80% of the screen
+        screen = QDesktopWidget().screenGeometry()
+        width = int(screen.width() * 0.8)
+        height = int(screen.height() * 0.8)
+        self.setGeometry(
+            (screen.width() - width) // 2,
+            (screen.height() - height) // 2,
+            width,
+            height
+        )
+
         self.setup_ui()
         
 
@@ -103,8 +114,6 @@ class EditorWindow(QWidget):
         layout.addWidget(self.info_label)
         self.text_edit.textChanged.connect(self.update_info_label)
 
-
-
         # Category Dropdown
         self.category_combo = QComboBox()
         self.category_combo.addItems(["Journal", "Dream", "Work", "Travel", "Other"])
@@ -135,8 +144,7 @@ class EditorWindow(QWidget):
 
         self.pin_btn = QPushButton("📌 Pin/Unpin Entry")
         self.pin_btn.clicked.connect(self.toggle_pin)
-        self.layout.addWidget(self.pin_btn)
-
+        layout.addWidget(self.pin_btn)  # Changed from self.layout to layout
 
         save_btn = QPushButton("💾 Save Entry")
         save_btn.clicked.connect(self.save_entry)

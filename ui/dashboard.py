@@ -2,7 +2,7 @@ import os
 import json
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QListWidget,
-    QMessageBox, QHBoxLayout, QLineEdit
+    QMessageBox, QHBoxLayout, QLineEdit, QDesktopWidget
 )
 from PyQt5.QtCore import Qt
 from ui.editor import EditorWindow
@@ -15,7 +15,18 @@ class DashboardWindow(QWidget):
         self.username = username
         self.theme = "light"  # default
         self.setWindowTitle(f"QuietQuill - Dashboard ({self.username})")
-        self.setGeometry(200, 150, 700, 500)
+
+        # Set window size to 80% of the screen
+        screen = QDesktopWidget().screenGeometry()
+        width = int(screen.width() * 0.8)
+        height = int(screen.height() * 0.8)
+        self.setGeometry(
+            (screen.width() - width) // 2,
+            (screen.height() - height) // 2,
+            width,
+            height
+        )
+
         self.setup_ui()
 
     def setup_ui(self):

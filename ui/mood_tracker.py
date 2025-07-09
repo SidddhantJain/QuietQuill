@@ -1,8 +1,30 @@
 # ui/mood_tracker.py
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCalendarWidget, QInputDialog, QMessageBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCalendarWidget, QInputDialog, QMessageBox, QDialog, QGridLayout, QPushButton
 import os, json
 from PyQt5.QtCore import QDate
+
+class EmojiPickerDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Select Emoji")
+        self.setGeometry(300, 300, 300, 200)
+        self.selected_emoji = None
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QGridLayout()
+        emojis = ["😊", "😔", "😎", "😡", "🥳", "😂", "❤️", "👍", "🎉", "🙌"]
+        for i, emoji in enumerate(emojis):
+            btn = QPushButton(emoji)
+            btn.setStyleSheet("font-size: 24px;")
+            btn.clicked.connect(lambda _, e=emoji: self.select_emoji(e))
+            layout.addWidget(btn, i // 5, i % 5)
+        self.setLayout(layout)
+
+    def select_emoji(self, emoji):
+        self.selected_emoji = emoji
+        self.accept()
 
 class MoodTrackerWindow(QWidget):
     def __init__(self, username):
@@ -32,9 +54,10 @@ class MoodTrackerWindow(QWidget):
 
     def set_mood_for_day(self, date: QDate):
         selected_date = date.toString("yyyy-MM-dd")
-        mood, ok = QInputDialog.getText(self, "Select Mood", "Enter emoji for mood (e.g., 😊, 😔, 😎, 😡, 🥳):")
-        if ok and mood.strip():
-            self.mood_data[selected_date] = mood.strip()
+        emoji_picker = EmojiPickerDialog()
+        if emoji_picker.exec_() == QDialog.Accepted and emoji_picker.selected_emoji:
+            mood = emoji_picker.selected_emoji
+            self.mood_data[selected_date] = mood
             with open(self.mood_file, "w") as f:
                 json.dump(self.mood_data, f, indent=2)
             QMessageBox.information(self, "Mood Saved", f"Mood for {selected_date}: {mood}")
