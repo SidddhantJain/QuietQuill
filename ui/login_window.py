@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
+    QWidget, QLabel, QLineEdit, QPushButton,
+    QVBoxLayout, QMessageBox
 )
 from PyQt5.QtCore import Qt
 import sqlite3
@@ -66,12 +67,10 @@ class LoginWindow(QWidget):
                 stored_hash, salt = result
                 input_hash = hashlib.sha256((password + salt).encode()).hexdigest()
                 if input_hash == stored_hash:
-                    print("Opening Dashboard...")
+                    print("✅ Login successful — opening Dashboard...")
                     self.dashboard = DashboardWindow(username)
                     self.dashboard.show()
-                    print("Dashboard should be visible now.")
                     self.close()
-
                 else:
                     QMessageBox.warning(self, "Login Failed", "Incorrect password.")
             else:
