@@ -13,9 +13,9 @@ class LoginWindow(QWidget):
         super().__init__()
         self.setWindowTitle("QuietQuill - Login")
 
-        # Set window size to 80% of the screen
+        # Set window size to 40% of the screen width and 50% of the screen height
         screen = QDesktopWidget().screenGeometry()
-        width = int(screen.width() * 0.4)  # Adjusted to 40% for a compact design
+        width = int(screen.width() * 0.4)
         height = int(screen.height() * 0.5)
         self.setGeometry(
             (screen.width() - width) // 2,
@@ -28,31 +28,55 @@ class LoginWindow(QWidget):
 
     def setup_ui(self):
         layout = QVBoxLayout()
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(15)
 
         # Title
-        title = QLabel("🖋️ <b>QuietQuill</b>")
+        title = QLabel("🖋️ <i><b>QuietQuill</b></i>")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px;")
+        title.setStyleSheet("""
+            font-size: 16em;  /* Responsive font size */
+            font-weight: bold;
+            color: #4CBF52;
+            margin-bottom: 30px;
+        """)
 
         # Username Input
         username_layout = QVBoxLayout()
         username_label = QLabel("Username")
-        username_label.setStyleSheet("font-size: 14px; color: #555;")
+        username_label.setStyleSheet("""
+            font-size: 1.5em;  /* Responsive font size */
+            color: #333;
+            margin-bottom: 5px;
+        """)
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Enter your username")
-        self.username_input.setStyleSheet("padding: 8px; border: 1px solid #ccc; border-radius: 4px;")
+        self.username_input.setStyleSheet("""
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 6px;
+            font-size: 1.2em;  /* Responsive font size */
+        """)
         username_layout.addWidget(username_label)
         username_layout.addWidget(self.username_input)
 
         # Password Input
         password_layout = QVBoxLayout()
         password_label = QLabel("Password")
-        password_label.setStyleSheet("font-size: 14px; color: #555;")
+        password_label.setStyleSheet("""
+            font-size: 1.5em;  /* Responsive font size */
+            color: #333;
+            margin-bottom: 5px;
+        """)
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter your password")
         self.password_input.setEchoMode(QLineEdit.Password)
-        self.password_input.setStyleSheet("padding: 8px; border: 1px solid #ccc; border-radius: 4px;")
+        self.password_input.setStyleSheet("""
+            padding: 10px;
+            border: 2px solid #4CAF50;
+            border-radius: 6px;
+            font-size: 1.2em;  /* Responsive font size */
+        """)
         password_layout.addWidget(password_label)
         password_layout.addWidget(self.password_input)
 
@@ -62,10 +86,10 @@ class LoginWindow(QWidget):
             QPushButton {
                 background-color: #4CAF50;
                 color: white;
-                font-size: 16px;
-                padding: 10px;
+                font-size: 1.5em;  /* Responsive font size */
+                padding: 12px;
                 border: none;
-                border-radius: 4px;
+                border-radius: 6px;
             }
             QPushButton:hover {
                 background-color: #45a049;
@@ -80,7 +104,7 @@ class LoginWindow(QWidget):
                 border: none;
                 color: #007BFF;
                 text-decoration: underline;
-                font-size: 12px;
+                font-size: 1.2em;  /* Responsive font size */
             }
             QPushButton:hover {
                 color: #0056b3;

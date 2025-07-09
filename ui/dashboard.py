@@ -115,28 +115,80 @@ class DashboardWindow(QWidget):
     
     def toggle_theme(self):
         current = self.styleSheet()
-        if "background-color: #2e2e2e" in current:
+        if "background: qlineargradient" in current:
             # Switch to light theme
             self.setStyleSheet("""
                 QWidget {
-                    background-color: #ffffff;
+                    background: qlineargradient(
+                        x1: 0, y1: 0, x2: 1, y2: 1,
+                        stop: 0 #f0f9ff, stop: 0.5 #cfe8ff, stop: 1 #a6d1ff
+                    );
                     color: #000000;
+                    font-family: Arial, sans-serif;
                 }
                 QPushButton {
-                    background-color: #f0f0f0;
-                    border: 1px solid #ccc;
+                    background-color: #e6f7ff;
+                    border: 1px solid #80bfff;
+                    border-radius: 8px;
+                    padding: 8px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #cceeff;
+                }
+                QLineEdit {
+                    background-color: #ffffff;
+                    border: 1px solid #80bfff;
+                    border-radius: 8px;
+                    padding: 8px;
+                }
+                QListWidget {
+                    background-color: #ffffff;
+                    border: 1px solid #80bfff;
+                    border-radius: 8px;
+                }
+                QLabel {
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #004080;
                 }
             """)
         else:
             # Switch to dark theme
             self.setStyleSheet("""
                 QWidget {
-                    background-color: #2e2e2e;
+                    background: qlineargradient(
+                        x1: 0, y1: 0, x2: 1, y2: 1,
+                        stop: 0 #1a1a2e, stop: 0.5 #16213e, stop: 1 #0f3460
+                    );
                     color: #f0f0f0;
+                    font-family: Arial, sans-serif;
                 }
                 QPushButton {
-                    background-color: #3e3e3e;
-                    border: 1px solid #666;
+                    background-color: #1f4068;
+                    border: 1px solid #16213e;
+                    border-radius: 8px;
+                    padding: 8px;
+                    font-weight: bold;
+                }
+                QPushButton:hover {
+                    background-color: #1b3a57;
+                }
+                QLineEdit {
+                    background-color: #16213e;
+                    border: 1px solid #1f4068;
+                    border-radius: 8px;
+                    padding: 8px;
+                }
+                QListWidget {
+                    background-color: #16213e;
+                    border: 1px solid #1f4068;
+                    border-radius: 8px;
+                }
+                QLabel {
+                    font-size: 20px;
+                    font-weight: bold;
+                    color: #e6e6e6;
                 }
             """)
 
