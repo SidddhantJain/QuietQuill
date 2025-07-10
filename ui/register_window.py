@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDesktopWidget
+    QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QMessageBox, QDesktopWidget,
+    QFrame, QSpacerItem, QSizePolicy, QHBoxLayout, QGraphicsDropShadowEffect
 )
-from PyQt5.QtGui import QPalette, QBrush, QLinearGradient
+from PyQt5.QtGui import QPalette, QBrush, QLinearGradient, QColor, QFont
 from PyQt5.QtCore import Qt
 import sqlite3
 import hashlib
@@ -12,8 +13,9 @@ class RegisterWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("QuietQuill - Register")
+        self.setMinimumSize(420, 520)
 
-        # Set window size to 80% of the screen
+        # Center window
         screen = QDesktopWidget().screenGeometry()
         width = int(screen.width() * 0.4)
         height = int(screen.height() * 0.5)
@@ -24,113 +26,155 @@ class RegisterWindow(QWidget):
             height
         )
 
-        # Apply gradient background
-        self.set_gradient_background()
-
         self.setup_ui()
 
-    def set_gradient_background(self):
-        palette = QPalette()
-        gradient = QLinearGradient(0, 0, 0, self.height())
-        gradient.setColorAt(0, Qt.white)
-        gradient.setColorAt(1, Qt.lightGray)
-        palette.setBrush(QPalette.Window, QBrush(gradient))
-        self.setPalette(palette)
-
     def setup_ui(self):
-        layout = QVBoxLayout()
-        layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(20)
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Title
-        title = QLabel("<h1 style='color: #4CAF50;'>Create Your Account</h1>")
-        title.setAlignment(Qt.AlignCenter)
+        # Title above the card
+        self.title = QLabel("📝 <b>Create Your Account</b>")
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setObjectName("registerTitle")
+        self.main_layout.addWidget(self.title, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacing(8)
+
+        # Card frame with gradient and shadow
+        self.card_frame = QFrame()
+        self.card_frame.setObjectName("registerCard")
+        self.card_frame.setStyleSheet("""
+            QFrame#registerCard {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #e3ffe6, stop:1 #b2f7ef);
+                border-radius: 22px;
+                padding: 36px 36px 28px 36px;
+                margin: auto;
+            }
+        """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(24)
+        shadow.setColor(QColor(76, 191, 82, 80))
+        shadow.setOffset(0, 10)
+        self.card_frame.setGraphicsEffect(shadow)
+
+        self.card_layout = QVBoxLayout(self.card_frame)
+        self.card_layout.setSpacing(18)
 
         # Username Input
         username_label = QLabel("Username")
-        username_label.setStyleSheet("font-size: 1.5em; color: #333; margin-bottom: 5px;")
+        username_label.setStyleSheet("font-size: 17px; color: #333; margin-bottom: 5px;")
         self.username_input = QLineEdit()
         self.username_input.setPlaceholderText("Choose a Username")
-        self.username_input.setStyleSheet("""
-            padding: 5px;
-            border: 2px solid #4CAF50;
-            border-radius: 6px;
-            font-size: 1.2em;
-        """)
+        self.username_input.setObjectName("usernameInput")
 
         # Password Input
         password_label = QLabel("Password")
-        password_label.setStyleSheet("font-size: 1.5em; color: #333; margin-bottom: 5px;")
+        password_label.setStyleSheet("font-size: 17px; color: #333; margin-bottom: 5px;")
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter Password")
         self.password_input.setEchoMode(QLineEdit.Password)
-        self.password_input.setStyleSheet("""
-            padding: 10px;
-            border: 2px solid #4CAF50;
-            border-radius: 6px;
-            font-size: 1.2em;
-        """)
+        self.password_input.setObjectName("passwordInput")
 
         # Confirm Password Input
         confirm_label = QLabel("Confirm Password")
-        confirm_label.setStyleSheet("font-size: 1.5em; color: #333; margin-bottom: 5px;")
+        confirm_label.setStyleSheet("font-size: 17px; color: #333; margin-bottom: 5px;")
         self.confirm_input = QLineEdit()
         self.confirm_input.setPlaceholderText("Confirm Password")
         self.confirm_input.setEchoMode(QLineEdit.Password)
-        self.confirm_input.setStyleSheet("""
-            padding: 10px;
-            border: 2px solid #4CAF50;
-            border-radius: 6px;
-            font-size: 1.2em;
-        """)
+        self.confirm_input.setObjectName("confirmInput")
 
         # Register Button
         self.register_btn = QPushButton("Register")
-        self.register_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                font-size: 1.5em;
-                padding: 12px;
-                border: none;
-                border-radius: 6px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-        """)
+        self.register_btn.setObjectName("registerBtn")
         self.register_btn.clicked.connect(self.handle_register)
 
         # Back to Login Button
         self.back_btn = QPushButton("Back to Login")
-        self.back_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #007BFF;
-                color: white;
-                font-size: 1.2em;
-                padding: 10px;
-                border: none;
-                border-radius: 6px;
-            }
-            QPushButton:hover {
-                background-color: #0056b3;
-            }
-        """)
+        self.back_btn.setObjectName("backBtn")
         self.back_btn.clicked.connect(self.back_to_login)
 
-        # Add widgets to layout
-        layout.addWidget(title)
-        layout.addWidget(username_label)
-        layout.addWidget(self.username_input)
-        layout.addWidget(password_label)
-        layout.addWidget(self.password_input)
-        layout.addWidget(confirm_label)
-        layout.addWidget(self.confirm_input)
-        layout.addSpacing(20)
-        layout.addWidget(self.register_btn)
-        layout.addWidget(self.back_btn)
+        # Add widgets to card layout
+        self.card_layout.addWidget(username_label)
+        self.card_layout.addWidget(self.username_input)
+        self.card_layout.addWidget(password_label)
+        self.card_layout.addWidget(self.password_input)
+        self.card_layout.addWidget(confirm_label)
+        self.card_layout.addWidget(self.confirm_input)
+        self.card_layout.addSpacing(18)
+        self.card_layout.addWidget(self.register_btn)
+        self.card_layout.addWidget(self.back_btn)
 
-        self.setLayout(layout)
+        self.main_layout.addWidget(self.card_frame, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.setLayout(self.main_layout)
+        self.apply_dynamic_styles()
+
+    def resizeEvent(self, event):
+        self.apply_dynamic_styles()
+        return super().resizeEvent(event)
+
+    def apply_dynamic_styles(self):
+        w = max(self.width(), 420)
+        h = max(self.height(), 520)
+        scale = min(w / 600, h / 700)
+        scale = max(0.8, min(scale, 1.3))
+        self.card_frame.setMaximumWidth(int(self.width() * 0.98))
+        self.title.setStyleSheet(f"""
+            font-size: {int(32 * scale)}px;
+            font-weight: bold;
+            color: #4CBF52;
+            margin-bottom: {int(8 * scale)}px;
+            background: transparent;
+        """)
+        for objname in ["usernameInput", "passwordInput", "confirmInput"]:
+            widget = self.findChild(QLineEdit, objname)
+            if widget:
+                widget.setStyleSheet(f"""
+                    QLineEdit {{
+                        padding: {int(10 * scale)}px;
+                        border: 2px solid #4CBF52;
+                        border-radius: {int(8 * scale)}px;
+                        font-size: {int(16 * scale)}px;
+                    }}
+                """)
+        self.register_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: #4CBF52;
+                color: white;
+                font-size: {int(18 * scale)}px;
+                padding: {int(12 * scale)}px;
+                border: none;
+                border-radius: {int(8 * scale)}px;
+                font-weight: bold;
+            }}
+            QPushButton:hover {{
+                background-color: #388e3c;
+            }}
+        """)
+        self.back_btn.setStyleSheet(f"""
+            QPushButton {{
+                background-color: #007BFF;
+                color: white;
+                font-size: {int(15 * scale)}px;
+                padding: {int(10 * scale)}px;
+                border: none;
+                border-radius: {int(8 * scale)}px;
+            }}
+            QPushButton:hover {{
+                background-color: #0056b3;
+            }}
+        """)
+        self.card_frame.setStyleSheet(f"""
+            QFrame#registerCard {{
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                            stop:0 #e3ffe6, stop:1 #b2f7ef);
+                border-radius: {int(22 * scale)}px;
+                padding: {int(36 * scale)}px {int(36 * scale)}px {int(28 * scale)}px {int(36 * scale)}px;
+                margin: auto;
+            }}
+        """)
 
     def handle_register(self):
         username = self.username_input.text().strip()

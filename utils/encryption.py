@@ -41,3 +41,21 @@ def encrypt_data(plaintext: str, username: str) -> bytes:
 def decrypt_data(ciphertext: bytes, username: str) -> str:
     fernet = get_user_key(username)
     return fernet.decrypt(ciphertext).decode()
+
+def encrypt_data(plaintext: str, filepath: str, username: str):
+    """
+    Encrypts plaintext and writes to file at filepath using user's key.
+    """
+    fernet = get_user_key(username)
+    ciphertext = fernet.encrypt(plaintext.encode())
+    with open(filepath, "wb") as f:
+        f.write(ciphertext)
+
+def decrypt_data(filepath: str, username: str) -> str:
+    """
+    Reads ciphertext from file at filepath and decrypts using user's key.
+    """
+    fernet = get_user_key(username)
+    with open(filepath, "rb") as f:
+        ciphertext = f.read()
+    return fernet.decrypt(ciphertext).decode()

@@ -4,19 +4,12 @@ import datetime
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QTextEdit, QPushButton,
     QFileDialog, QMessageBox, QLabel, QHBoxLayout, QInputDialog,
-    QComboBox, QLineEdit, QListWidget, QListWidgetItem, QDesktopWidget
+    QComboBox, QLineEdit, QListWidget, QListWidgetItem, QDesktopWidget,
+    QSpacerItem, QSizePolicy, QFrame, QGraphicsDropShadowEffect
 )
-from PyQt5.QtGui import QTextImageFormat
+from PyQt5.QtGui import QTextImageFormat, QFont, QColor
 from PyQt5.QtCore import Qt
 from utils.encryption import encrypt_data, decrypt_data
-from PyQt5.QtWidgets import QTextEdit
-from PyQt5.QtGui import QTextImageFormat
-from PyQt5.QtCore import QUrl
-
-from PyQt5.QtWidgets import QTextEdit
-from PyQt5.QtGui import QTextImageFormat
-from PyQt5.QtCore import QUrl
-import os
 
 class ImageDropTextEdit(QTextEdit):
     def __init__(self):
@@ -35,12 +28,11 @@ class ImageDropTextEdit(QTextEdit):
             if os.path.isfile(file_path) and file_path.lower().endswith((".png", ".jpg", ".jpeg", ".bmp", ".gif")):
                 img_format = QTextImageFormat()
                 img_format.setName(file_path)
-                img_format.setWidth(300)  # default size
+                img_format.setWidth(300)
                 img_format.setHeight(200)
                 self.textCursor().insertImage(img_format)
             else:
                 super().dropEvent(event)
-
 
 class EditorWindow(QWidget):
     def __init__(self, username, filename=None, theme="light"):
@@ -53,108 +45,219 @@ class EditorWindow(QWidget):
         os.makedirs(self.entry_dir, exist_ok=True)
 
         self.setWindowTitle("📝 QuietQuill - Editor")
-
-        # Set window size to 80% of the screen
-        screen = QDesktopWidget().screenGeometry()
-        width = int(screen.width() * 0.8)
-        height = int(screen.height() * 0.8)
-        self.setGeometry(
-            (screen.width() - width) // 2,
-            (screen.height() - height) // 2,
-            width,
-            height
-        )
-
+        self.setMinimumSize(900, 600)
         self.setup_ui()
-        
 
         if self.filename:
             self.load_entry()
 
-        # Apply selected theme
-        self.apply_theme(self.theme)
-
-    def apply_theme(self, mode):
-        if mode == "dark":
-            dark_stylesheet = """
-            QWidget {
-                background-color: #1e1e1e;
-                color: #e0e0e0;
-                font-family: Segoe UI;
-            }
-            QLineEdit, QTextEdit, QListWidget {
-                background-color: #2c2c2c;
-                color: #ffffff;
-                border: 1px solid #444;
-            }
-            QPushButton {
-                background-color: #444;
-                color: white;
-                padding: 5px;
-            }
-            QPushButton:hover {
-                background-color: #666;
-            }
-            """
-            self.setStyleSheet(dark_stylesheet)
-        else:
-            self.setStyleSheet("")  # Default light style
-
+        self.apply_dynamic_styles()
 
     def setup_ui(self):
-        layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
+        # Title above the card
+        self.title = QLabel("📖 <b>Diary Entry</b>")
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setObjectName("editorTitle")
+        self.main_layout.addWidget(self.title, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacing(8)
+
+        # Card frame with gradient and shadow
+        self.card_frame = QFrame()
+        self.card_frame.setObjectName("editorCard")
+        self.card_frame.setStyleSheet("""
+            QFrame#editorCard {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #fffbe7, stop:1 #ffe082);
+                border-radius: 22px;
+                padding: 36px 36px 28px 36px;
+                margin: auto;
+            }
+        """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(24)
+        shadow.setColor(QColor(255, 215, 64, 80))
+        shadow.setOffset(0, 10)
+        self.card_frame.setGraphicsEffect(shadow)
+
+        self.card_layout = QVBoxLayout(self.card_frame)
+        self.card_layout.setSpacing(18)
+
+        # Entry title label (editable)
         self.title_label = QLabel("Untitled Entry")
-        self.title_label.setStyleSheet("font-weight: bold; font-size: 18px;")
-        layout.addWidget(self.title_label)
+        self.title_label.setStyleSheet("font-weight: bold; font-size: 22px; color: #b28704; background: transparent;")
+        self.title_label.setAlignment(Qt.AlignCenter)
+        self.card_layout.addWidget(self.title_label)
 
+        # Diary text area
         self.text_edit = ImageDropTextEdit()
-        layout.addWidget(self.text_edit)
+        self.text_edit.setObjectName("diaryTextEdit")
+        self.text_edit.setFont(QFont("Georgia", 16))
+        self.card_layout.addWidget(self.text_edit)
         self.info_label = QLabel("Words: 0 | Mood: Neutral 😐")
-        layout.addWidget(self.info_label)
+        self.info_label.setAlignment(Qt.AlignRight)
+        self.card_layout.addWidget(self.info_label)
         self.text_edit.textChanged.connect(self.update_info_label)
 
         # Category Dropdown
         self.category_combo = QComboBox()
         self.category_combo.addItems(["Journal", "Dream", "Work", "Travel", "Other"])
-        layout.addWidget(QLabel("Category:"))
-        layout.addWidget(self.category_combo)
+        self.category_combo.setObjectName("categoryCombo")
+        cat_row = QHBoxLayout()
+        cat_row.addWidget(QLabel("Category:"))
+        cat_row.addWidget(self.category_combo)
+        self.card_layout.addLayout(cat_row)
 
         # Tags
+        tag_row = QHBoxLayout()
         self.tags_input = QLineEdit()
         self.tags_input.setPlaceholderText("Enter tags (comma-separated, e.g., dreams, travel)")
-        layout.addWidget(QLabel("Tags:"))
-        layout.addWidget(self.tags_input)
+        self.tags_input.setObjectName("tagsInput")
+        tag_row.addWidget(QLabel("Tags:"))
+        tag_row.addWidget(self.tags_input)
+        self.card_layout.addLayout(tag_row)
 
         # Tag Suggestion List
         self.suggestion_list = QListWidget()
         self.suggestion_list.setMaximumHeight(80)
+        self.suggestion_list.setObjectName("suggestionList")
         self.suggestion_list.itemClicked.connect(self.insert_tag)
-        layout.addWidget(QLabel("Suggestions:"))
-        layout.addWidget(self.suggestion_list)
+        self.card_layout.addWidget(QLabel("Suggestions:"))
+        self.card_layout.addWidget(self.suggestion_list)
 
         # Button Row
         button_row = QHBoxLayout()
+        button_row.setSpacing(14)
 
-        emoji_btn = QPushButton("😊 Insert Emoji")
+        emoji_btn = QPushButton("😊\nEmoji")
         emoji_btn.clicked.connect(self.insert_emoji)
-
-        img_btn = QPushButton("🖼️ Insert Image")
+        img_btn = QPushButton("🖼️\nImage")
         img_btn.clicked.connect(self.insert_image)
-
-        self.pin_btn = QPushButton("📌 Pin/Unpin Entry")
+        self.pin_btn = QPushButton("📌\nPin/Unpin")
         self.pin_btn.clicked.connect(self.toggle_pin)
-        layout.addWidget(self.pin_btn)  # Changed from self.layout to layout
-
-        save_btn = QPushButton("💾 Save Entry")
+        save_btn = QPushButton("💾\nSave")
         save_btn.clicked.connect(self.save_entry)
 
-        button_row.addWidget(emoji_btn)
-        button_row.addWidget(img_btn)
-        button_row.addWidget(save_btn)
+        for btn in [emoji_btn, img_btn, self.pin_btn, save_btn]:
+            btn.setMinimumHeight(60)
+            btn.setMaximumHeight(70)
+            btn.setMinimumWidth(90)
+            btn.setMaximumWidth(110)
+            btn.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            btn.setStyleSheet("""
+                QPushButton {
+                    font-size: 15px;
+                    font-weight: bold;
+                    padding: 8px 6px;
+                    border-radius: 14px;
+                    background-color: #ffd54f;
+                    color: #795548;
+                    border: none;
+                    text-align: center;
+                }
+                QPushButton:hover {
+                    background-color: #ffe082;
+                }
+            """)
+            button_row.addWidget(btn)
 
-        layout.addLayout(button_row)
-        self.setLayout(layout)
+        self.card_layout.addLayout(button_row)
+        self.main_layout.addWidget(self.card_frame, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.setLayout(self.main_layout)
+
+    def resizeEvent(self, event):
+        self.apply_dynamic_styles()
+        return super().resizeEvent(event)
+
+    def apply_dynamic_styles(self):
+        w = max(self.width(), 900)
+        h = max(self.height(), 600)
+        scale = min(w / 1200, h / 800)
+        scale = max(0.7, min(scale, 1.5))
+
+        card_grad = "qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #fffbe7, stop:1 #ffe082)"
+        title_color = "#b28704"
+        label_color = "#795548"
+        input_bg = "#fffde7"
+        input_border = "#ffd54f"
+        input_text = "#795548"
+        list_bg = "#fffde7"
+        list_border = "#ffd54f"
+
+        self.setStyleSheet(f"background: #fffde7;")
+        self.card_frame.setMaximumWidth(int(self.width() * 0.98))
+        self.title.setStyleSheet(f"""
+            font-size: 36px;
+            font-weight: bold;
+            color: {title_color};
+            margin-bottom: {int(8 * scale)}px;
+            background: transparent;
+        """)
+        self.title_label.setStyleSheet(f"""
+            font-size: 22px;
+            font-weight: bold;
+            color: {title_color};
+            background: transparent;
+        """)
+        self.text_edit.setStyleSheet(f"""
+            QTextEdit {{
+                background: {input_bg};
+                color: {input_text};
+                border: 2px solid {input_border};
+                border-radius: 14px;
+                font-family: 'Georgia', 'Times New Roman', serif;
+                font-size: 17px;
+                padding: 14px;
+            }}
+        """)
+        self.info_label.setStyleSheet(f"""
+            font-size: 14px;
+            color: {label_color};
+            background: transparent;
+        """)
+        self.category_combo.setStyleSheet(f"""
+            QComboBox {{
+                background: {input_bg};
+                color: {input_text};
+                border: 2px solid {input_border};
+                border-radius: 8px;
+                font-size: 15px;
+                padding: 6px;
+            }}
+        """)
+        self.tags_input.setStyleSheet(f"""
+            QLineEdit {{
+                background: {input_bg};
+                color: {input_text};
+                border: 2px solid {input_border};
+                border-radius: 8px;
+                font-size: 15px;
+                padding: 6px;
+            }}
+        """)
+        self.suggestion_list.setStyleSheet(f"""
+            QListWidget {{
+                background: {list_bg};
+                border: 2px solid {list_border};
+                border-radius: 8px;
+                font-size: 14px;
+                color: {input_text};
+                padding: 4px;
+            }}
+        """)
+        self.card_frame.setStyleSheet(f"""
+            QFrame#editorCard {{
+                background: {card_grad};
+                border-radius: 22px;
+                padding: 36px 36px 28px 36px;
+                margin: auto;
+            }}
+        """)
 
     def load_entry(self):
         enc_path = self.get_full_entry_path(self.filename)
@@ -213,7 +316,16 @@ class EditorWindow(QWidget):
         save_dir = os.path.join(self.entry_dir, year, month)
         os.makedirs(save_dir, exist_ok=True)
         enc_path = os.path.join(save_dir, self.filename)
-        encrypt_data(content, enc_path)
+
+        # Fix: Pass username to encrypt_data if required by your encryption.py
+        try:
+            encrypt_data(content, enc_path, self.username)
+        except TypeError:
+            # For backward compatibility if encrypt_data expects only 2 args
+            encrypt_data(content, enc_path)
+        except Exception as e:
+            QMessageBox.critical(self, "Encryption Error", f"Failed to encrypt entry: {str(e)}")
+            return
 
         # Save meta
         tags = [t.strip() for t in self.tags_input.text().split(",") if t.strip()]
