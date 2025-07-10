@@ -2,11 +2,12 @@ import os
 import json
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QListWidget,
-    QMessageBox, QHBoxLayout, QLineEdit, QDesktopWidget
+    QMessageBox, QHBoxLayout, QLineEdit, QDesktopWidget,
+    QCheckBox, QSpacerItem, QSizePolicy, QFrame, QGraphicsDropShadowEffect
 )
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
 from ui.editor import EditorWindow
-from PyQt5.QtWidgets import QCheckBox, QApplication
 
 
 class DashboardWindow(QWidget):
@@ -15,183 +16,202 @@ class DashboardWindow(QWidget):
         self.username = username
         self.theme = "light"  # default
         self.setWindowTitle(f"QuietQuill - Dashboard ({self.username})")
-
-        # Set window size to 80% of the screen
-        screen = QDesktopWidget().screenGeometry()
-        width = int(screen.width() * 0.8)
-        height = int(screen.height() * 0.8)
-        self.setGeometry(
-            (screen.width() - width) // 2,
-            (screen.height() - height) // 2,
-            width,
-            height
-        )
-
+        self.setMinimumSize(900, 600)
+        self.setStyleSheet("background-color: #e3f2fd;")
         self.setup_ui()
 
     def setup_ui(self):
-        self.layout = QVBoxLayout()
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setContentsMargins(0, 0, 0, 0)
+        self.main_layout.setSpacing(0)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 30, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
-        # Welcome title
-        title = QLabel(f"📔 Welcome, <b>{self.username}</b>")
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 18px;")
-        self.layout.addWidget(title)
+        # Title above the card
+        self.title = QLabel(f"📔 <b>Welcome, {self.username}</b>")
+        self.title.setAlignment(Qt.AlignCenter)
+        self.title.setObjectName("dashboardTitle")
+        self.main_layout.addWidget(self.title, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacing(8)
 
-        # 🌙 Theme Toggle
+        # Card frame with gradient and shadow
+        self.card_frame = QFrame()
+        self.card_frame.setObjectName("dashboardCard")
+        self.card_frame.setStyleSheet("""
+            QFrame#dashboardCard {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+                    stop:0 #ffffff, stop:1 #e3f2fd);
+                border-radius: 22px;
+                padding: 36px 36px 28px 36px;
+                margin: auto;
+            }
+        """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(24)
+        shadow.setColor(QColor(66, 165, 245, 80))
+        shadow.setOffset(0, 10)
+        self.card_frame.setGraphicsEffect(shadow)
+
+        self.card_layout = QVBoxLayout(self.card_frame)
+        self.card_layout.setSpacing(18)
+
+        # Theme toggle row
         theme_toggle_row = QHBoxLayout()
         self.theme_toggle = QCheckBox("🌙 Dark Mode")
+        self.theme_toggle.setObjectName("themeToggle")
         self.theme_toggle.stateChanged.connect(self.toggle_theme)
         theme_toggle_row.addStretch()
         theme_toggle_row.addWidget(self.theme_toggle)
-        self.layout.addLayout(theme_toggle_row)
+        self.card_layout.addLayout(theme_toggle_row)
 
-        # 🔍 Search bar
+        # Search bar
         self.search_bar = QLineEdit()
         self.search_bar.setPlaceholderText("🔍 Search by tag, title or date...")
+        self.search_bar.setObjectName("searchBar")
         self.search_bar.textChanged.connect(self.filter_entries)
-        self.layout.addWidget(self.search_bar)
+        self.card_layout.addWidget(self.search_bar)
 
-        # 📄 Entry list
+        # Entry list
         self.entry_list = QListWidget()
-        self.layout.addWidget(self.entry_list)
+        self.entry_list.setObjectName("entryList")
+        self.card_layout.addWidget(self.entry_list)
 
-        # 🔘 Action buttons
+        # Action buttons row
         button_row = QHBoxLayout()
+        button_row.setSpacing(18)
 
-        
-        open_btn = QPushButton("🔓 Open Entry")
-        open_btn.clicked.connect(self.open_entry)
+        mood_btn = QPushButton("📅\nMood\nTracker")
+        calendar_btn = QPushButton("📆\nView\nCalendar")
+        stats_btn = QPushButton("📈\nEntry\nStats")
+        open_btn = QPushButton("🔓\nOpen\nEntry")
+        new_btn = QPushButton("➕\nNew\nEntry")
+        delete_btn = QPushButton("🗑️\nDelete\nEntry")
+        change_pw_btn = QPushButton("🔐\nChange\nPassword")
+        logout_btn = QPushButton("🚪\nLogout")
 
-        
-        new_btn = QPushButton("➕ New Entry")
-        new_btn.clicked.connect(self.new_entry)
-
-        
-        delete_btn = QPushButton("🗑️ Delete Entry")
-        delete_btn.clicked.connect(self.delete_entry)
-
-        
-        change_pw_btn = QPushButton("🔐 Change Password")
-        change_pw_btn.clicked.connect(self.change_password)
-
-        
-        mood_btn = QPushButton("📅 Mood Tracker")
+        # Connect signals
         mood_btn.clicked.connect(self.open_mood_tracker)
-        button_row.addWidget(mood_btn)
-
-        
-        # Calander button
-        calendar_btn = QPushButton("📆 View Calendar")
         calendar_btn.clicked.connect(self.open_entry_calendar)
-        button_row.addWidget(calendar_btn)
-
-        # Entry stats button
-        stats_btn = QPushButton("📈 Entry Stats")
         stats_btn.clicked.connect(self.open_stats)
-        button_row.addWidget(stats_btn)
-
-        # Advanced search button
-        self.advanced_search_btn = QPushButton("🔍 Advanced Search")
-        self.advanced_search_btn.clicked.connect(self.open_advanced_search)
-        self.layout.addWidget(self.advanced_search_btn)
-
-
-        # Logout button
-        logout_btn = QPushButton("🚪 Logout")
+        open_btn.clicked.connect(self.open_entry)
+        new_btn.clicked.connect(self.new_entry)
+        delete_btn.clicked.connect(self.delete_entry)
+        change_pw_btn.clicked.connect(self.change_password)
         logout_btn.clicked.connect(self.logout)
 
-        button_row.addWidget(open_btn)
-        button_row.addWidget(new_btn)
-        button_row.addWidget(delete_btn)
-        button_row.addWidget(change_pw_btn)
-        button_row.addWidget(logout_btn)
+        # Set better button design (multi-line, fixed width, elide text if needed)
+        for btn in [mood_btn, calendar_btn, stats_btn, open_btn, new_btn, delete_btn, change_pw_btn, logout_btn]:
+            btn.setObjectName("dashboardBtn")
+            btn.setMinimumHeight(64)
+            btn.setMaximumHeight(72)
+            btn.setMinimumWidth(90)
+            btn.setMaximumWidth(110)
+            btn.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+            btn.setStyleSheet("""
+                QPushButton {
+                    font-size: 15px;
+                    font-weight: bold;
+                    padding: 8px 6px;
+                    border-radius: 14px;
+                    background-color: #1976d2;
+                    color: #fff;
+                    border: none;
+                    text-align: center;
+                }
+                QPushButton:hover {
+                    background-color: #1565c0;
+                }
+            """)
+            button_row.addWidget(btn)
 
-        self.layout.addLayout(button_row)
-        self.setLayout(self.layout)
+        self.card_layout.addLayout(button_row)
 
-        # Load entries at the end
+        self.main_layout.addWidget(self.card_frame, alignment=Qt.AlignHCenter)
+        self.main_layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.setLayout(self.main_layout)
+        self.apply_dynamic_styles()
         self.load_entries()
-    
-    def toggle_theme(self):
-        current = self.styleSheet()
-        if "background: qlineargradient" in current:
-            # Switch to light theme
-            self.setStyleSheet("""
-                QWidget {
-                    background: qlineargradient(
-                        x1: 0, y1: 0, x2: 1, y2: 1,
-                        stop: 0 #f0f9ff, stop: 0.5 #cfe8ff, stop: 1 #a6d1ff
-                    );
-                    color: #000000;
-                    font-family: Arial, sans-serif;
-                }
-                QPushButton {
-                    background-color: #e6f7ff;
-                    border: 1px solid #80bfff;
-                    border-radius: 8px;
-                    padding: 8px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #cceeff;
-                }
-                QLineEdit {
-                    background-color: #ffffff;
-                    border: 1px solid #80bfff;
-                    border-radius: 8px;
-                    padding: 8px;
-                }
-                QListWidget {
-                    background-color: #ffffff;
-                    border: 1px solid #80bfff;
-                    border-radius: 8px;
-                }
-                QLabel {
-                    font-size: 20px;
-                    font-weight: bold;
-                    color: #004080;
-                }
-            """)
-        else:
-            # Switch to dark theme
-            self.setStyleSheet("""
-                QWidget {
-                    background: qlineargradient(
-                        x1: 0, y1: 0, x2: 1, y2: 1,
-                        stop: 0 #1a1a2e, stop: 0.5 #16213e, stop: 1 #0f3460
-                    );
-                    color: #f0f0f0;
-                    font-family: Arial, sans-serif;
-                }
-                QPushButton {
-                    background-color: #1f4068;
-                    border: 1px solid #16213e;
-                    border-radius: 8px;
-                    padding: 8px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #1b3a57;
-                }
-                QLineEdit {
-                    background-color: #16213e;
-                    border: 1px solid #1f4068;
-                    border-radius: 8px;
-                    padding: 8px;
-                }
-                QListWidget {
-                    background-color: #16213e;
-                    border: 1px solid #1f4068;
-                    border-radius: 8px;
-                }
-                QLabel {
-                    font-size: 20px;
-                    font-weight: bold;
-                    color: #e6e6e6;
-                }
-            """)
 
+    def resizeEvent(self, event):
+        self.apply_dynamic_styles()
+        return super().resizeEvent(event)
+
+    def toggle_theme(self):
+        # Toggle theme and reapply styles
+        if self.theme == "light":
+            self.theme = "dark"
+        else:
+            self.theme = "light"
+        self.apply_dynamic_styles()
+
+    def apply_dynamic_styles(self):
+        w = max(self.width(), 900)
+        h = max(self.height(), 600)
+        scale = min(w / 1200, h / 800)
+        scale = max(0.7, min(scale, 1.5))
+
+        if self.theme == "dark":
+            bg_grad = "qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #1a1a2e, stop:0.5 #16213e, stop:1 #0f3460)"
+            card_grad = "qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #23243a, stop:1 #2d3250)"
+            title_color = "#90caf9"
+            label_color = "#e6e6e6"
+            input_bg = "#23243a"
+            input_border = "#42a5f5"
+            input_text = "#e6e6e6"
+            list_bg = "#23243a"
+            list_border = "#42a5f5"
+        else:
+            bg_grad = "#e3f2fd"
+            card_grad = "qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #e3f2fd, stop:0.5 #90caf9, stop:1 #42a5f5)"
+            title_color = "#1976d2"
+            label_color = "#333"
+            input_bg = "#f5fafd"
+            input_border = "#1976d2"
+            input_text = "#222"
+            list_bg = "#f5fafd"
+            list_border = "#90caf9"
+
+        self.setStyleSheet(f"background: {bg_grad};")
+        self.card_frame.setMaximumWidth(int(self.width() * 0.98))
+        self.title.setStyleSheet(f"""
+            font-size: 36px;
+            font-weight: bold;
+            color: {title_color};
+            margin-bottom: {int(8 * scale)}px;
+            background: transparent;
+        """)
+        self.theme_toggle.setStyleSheet(f"""
+            QCheckBox {{
+                font-size: 16px;
+                color: {label_color};
+                background: transparent;
+            }}
+        """)
+        self.search_bar.setStyleSheet(f"""
+            padding: 12px;
+            border: 2px solid {input_border};
+            border-radius: 10px;
+            font-size: 16px;
+            background: {input_bg};
+            color: {input_text};
+        """)
+        self.entry_list.setStyleSheet(f"""
+            QListWidget {{
+                background: {list_bg};
+                border: 2px solid {list_border};
+                border-radius: 12px;
+                font-size: 15px;
+                padding: 8px;
+                color: {input_text};
+            }}
+        """)
+        self.card_frame.setStyleSheet(f"""
+            QFrame#dashboardCard {{
+                background: {card_grad};
+                border-radius: 22px;
+                padding: 36px 36px 28px 36px;
+                margin: auto;
+            }}
+        """)
 
     def open_stats(self):
         from ui.stats import StatsWindow
@@ -212,12 +232,6 @@ class DashboardWindow(QWidget):
         from ui.mood_tracker import MoodTrackerWindow
         self.mood_window = MoodTrackerWindow(self.username)
         self.mood_window.show()
-
-
-    def open_advanced_search(self):
-        from ui.advanced_search import AdvancedSearchWindow
-        self.search_window = AdvancedSearchWindow(self.username)
-        self.search_window.show()
 
 
     def load_entries(self):
