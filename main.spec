@@ -10,8 +10,8 @@ a = Analysis(
     binaries=[],
     datas=[
         ('assets', 'assets'),
-        ('entries', 'entries'),
         ('db', 'db'),
+        ('entries', 'entries'),
     ],
     hiddenimports=collect_submodules('ui') + collect_submodules('utils'),
     hookspath=[],
@@ -36,7 +36,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,  # 👈 hides console for GUI app
+    console=False,  # Hides black terminal window
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
@@ -51,5 +51,6 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
+    
     name='QuietQuill'
 )
