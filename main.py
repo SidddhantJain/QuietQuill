@@ -1,16 +1,12 @@
 # System module for command line arguments and exit functionality
 import sys
-# PyQt5 application framework for GUI
+
 from PyQt5.QtWidgets import QApplication
-# Import the login window UI component
 from ui.login_window import LoginWindow
-# Import database initialization function
 from db.init_db import init_db
 
 def main():
-    """
-    Main function that initializes the application and starts the GUI.
-    """
+    
     # Initialize the database (create tables if they don't exist)
     init_db()
     

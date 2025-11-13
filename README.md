@@ -47,27 +47,39 @@
 - Python 3.8 or higher
 - pip package manager
 
-### Quick Start
+### Quick Start (Windows PowerShell)
 
-1. **Clone the repository:**
-   ```bash
+1. Clone the repository
+   ```powershell
    git clone https://github.com/yourusername/QuietQuill.git
    cd QuietQuill
    ```
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
+2. Create and activate a virtual environment
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install --upgrade pip
    ```
 
-3. **Initialize the database:**
-   ```bash
+3. Install dependencies
+   ```powershell
+   pip install -r requirement.txt
+   ```
+
+4. Initialize the database (creates db/users.db if missing)
+   ```powershell
    python -c "from db.init_db import init_db; init_db()"
    ```
 
-4. **Launch QuietQuill:**
-   ```bash
-   python main.py
+5. Run the app from source
+   ```powershell
+   python .\main.py
+   ```
+
+6. Optional: run the packaged executable (if present)
+   ```powershell
+   .\build\main\QuietQuill.exe
    ```
 
 ---
@@ -95,6 +107,17 @@ QuietQuill/
 ├── 📋 requirements.txt        # Python dependencies
 └── 📖 README.md               # This file
 ```
+
+---
+
+## 🖼️ UML Diagrams (Class Model + OCL)
+
+- Class diagram source: `uml/Class_Model_QuietQuill.puml`
+- OCL specification: `uml/OCL_QuietQuill.md`
+
+How to preview/export the class diagram:
+- VS Code: install the PlantUML extension, open the `.puml` file, then “Preview Current Diagram” and Export as PNG/SVG.
+- Alternatively (CLI): use PlantUML + Graphviz locally to render the `.puml` to images.
 
 ---
 

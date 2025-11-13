@@ -1,10 +1,4 @@
-"""
-Journal Entry Editor Module
-
-This module provides a rich text editor for creating and editing journal entries
-in the QuietQuill application. It supports features like image insertion, emoji
-insertion, tagging, categorization, encryption, and basic sentiment analysis.
-"""
+"""Editor: rich text entries with images, emojis, tags, categories, and encryption."""
 
 import os
 import json
@@ -20,16 +14,7 @@ from PyQt5.QtCore import Qt
 from utils.encryption import encrypt_data, decrypt_data
 
 class ImageDropTextEdit(QTextEdit):
-    """
-    A custom QTextEdit that supports drag-and-drop image insertion.
-    
-    This class extends QTextEdit to provide drag-and-drop functionality
-    for image files. When an image is dropped onto the text area, it
-    automatically inserts the image into the document with predefined
-    dimensions.
-    
-    Supported image formats: PNG, JPG, JPEG, BMP, GIF
-    """
+    """QTextEdit with drag-and-drop image insert support (PNG/JPG/JPEG/BMP/GIF)."""
     
     def __init__(self):
         """Initialize the ImageDropTextEdit with drag-and-drop enabled."""
@@ -37,27 +22,13 @@ class ImageDropTextEdit(QTextEdit):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
-        """
-        Handle drag enter events to accept file drops.
-        
-        Args:
-            event: The drag enter event containing mime data
-        """
+        """Accept URL drops; defer others to default handler."""
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
         else:
             super().dragEnterEvent(event)
 
     def dropEvent(self, event):
-        """
-        Handle drop events to insert images into the text editor.
-        
-        Processes dropped files and inserts valid image files into the
-        text editor with default dimensions (300x200 pixels).
-        
-        Args:
-            event: The drop event containing file URLs
-        """
         for url in event.mimeData().urls():
             file_path = url.toLocalFile()
             # Check if dropped file is a valid image format
@@ -72,43 +43,8 @@ class ImageDropTextEdit(QTextEdit):
                 super().dropEvent(event)
 
 class EditorWindow(QWidget):
-    """
-    A comprehensive journal entry editor with rich text capabilities.
-    
-    This window provides a full-featured editor for creating and editing
-    journal entries with the following features:
-    - Rich text editing with HTML support
-    - Image insertion via drag-and-drop or file dialog
-    - Emoji insertion
-    - Entry categorization and tagging
-    - Encrypted storage with metadata
-    - Basic sentiment analysis
-    - Pin/unpin functionality
-    - Responsive design with gradient styling
-    - Tag suggestions based on existing entries
-    
-    Attributes:
-        username (str): The username who owns the entry
-        filename (str): The filename of the entry being edited (None for new entries)
-        theme (str): The UI theme (currently unused)
-        start_time (datetime): When the editing session started
-        entry_dir (str): Directory path for storing user entries
-        text_edit (ImageDropTextEdit): The main text editor widget
-        title_label (QLabel): Display label for entry title
-        category_combo (QComboBox): Dropdown for entry categorization
-        tags_input (QLineEdit): Input field for entry tags
-        suggestion_list (QListWidget): List of tag suggestions
-    """
     
     def __init__(self, username, filename=None, theme="light"):
-        """
-        Initialize the EditorWindow for a specific user.
-        
-        Args:
-            username (str): The username who owns the entry
-            filename (str, optional): Filename of existing entry to edit
-            theme (str, optional): UI theme preference (default: "light")
-        """
         super().__init__()
         self.username = username
         self.filename = filename
@@ -502,18 +438,7 @@ class EditorWindow(QWidget):
         self.close()
 
     def get_full_entry_path(self, filename):
-        """
-        Find the full path of an entry file by searching the user's directory.
-        
-        Args:
-            filename (str): The filename to search for
-            
-        Returns:
-            str: The full path to the file
-            
-        Raises:
-            FileNotFoundError: If the file is not found in any subdirectory
-        """
+    
         # Search recursively through user's entry directory
         for root, _, files in os.walk(self.entry_dir):
             if filename in files:

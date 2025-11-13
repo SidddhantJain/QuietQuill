@@ -1,10 +1,4 @@
-"""
-Entry Calendar Module
-
-This module provides a calendar-based interface for viewing journal entries by date.
-Users can see highlighted dates with entries and click on dates to view entry titles
-for that specific day. Multiple entries per day are supported with a list dialog.
-"""
+"""Entry calendar: highlight dates with entries and list titles for a selected day."""
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCalendarWidget, QMessageBox, QListWidget, QDialog, QDialogButtonBox
 from PyQt5.QtCore import QDate, Qt
@@ -12,29 +6,10 @@ from PyQt5.QtGui import QTextCharFormat, QColor
 import os, json
 
 class EntryCalendarWindow(QWidget):
-    """
-    A calendar widget for displaying and accessing journal entries by date.
-    
-    This window provides a visual calendar interface where:
-    - Dates with journal entries are highlighted in blue
-    - Clicking on a date shows entry titles for that day
-    - Single entries are displayed in a message box
-    - Multiple entries are shown in a list dialog
-    - Handles metadata parsing and file system operations
-    
-    Attributes:
-        username (str): The username whose entries are being displayed
-        entry_dir (str): Path to the directory containing user's entries
-        calendar (QCalendarWidget): The main calendar widget for date selection
-    """
+    """Calendar view: highlights dates with entries; shows titles on click."""
     
     def __init__(self, username):
-        """
-        Initialize the EntryCalendarWindow for a specific user.
-        
-        Args:
-            username (str): The username whose entries will be displayed on the calendar
-        """
+        """Init with username; build UI and mark dates."""
         super().__init__()
         self.username = username
         self.setWindowTitle("📆 Entry Calendar")
@@ -48,12 +23,7 @@ class EntryCalendarWindow(QWidget):
         self.mark_entry_dates()
 
     def setup_ui(self):
-        """
-        Set up the user interface components for the calendar view.
-        
-        Creates and configures the calendar widget and connects it to the
-        entry information display handler.
-        """
+        """Build calendar widget and connect click handler."""
         layout = QVBoxLayout()
         
         # Main calendar widget for date selection and display
@@ -65,15 +35,7 @@ class EntryCalendarWindow(QWidget):
         self.setLayout(layout)
 
     def mark_entry_dates(self):
-        """
-        Mark calendar dates that have journal entries with visual highlighting.
-        
-        This method:
-        1. Scans the user's entries directory for metadata files
-        2. Extracts dates from entry metadata
-        3. Applies blue background highlighting to dates with entries
-        4. Handles file parsing errors gracefully
-        """
+        """Scan entry metadata and highlight dates with entries."""
         # Check if user has entries directory
         if not os.path.isdir(self.entry_dir):
             return
@@ -112,18 +74,7 @@ class EntryCalendarWindow(QWidget):
                 continue
 
     def show_entry_info(self, date: QDate):
-        """
-        Display entry information for a selected calendar date.
-        
-        This method handles clicking on calendar dates by:
-        1. Finding all entries for the selected date
-        2. Displaying single entries in a message box
-        3. Showing multiple entries in a list dialog
-        4. Providing feedback for dates with no entries
-        
-        Args:
-            date (QDate): The calendar date that was clicked
-        """
+        """List entry titles for selected date (message box for one, dialog for many)."""
         # Convert QDate to string format for comparison
         date_str = date.toString("yyyy-MM-dd")
         entries = []
@@ -160,15 +111,7 @@ class EntryCalendarWindow(QWidget):
             QMessageBox.information(self, "No Entries", "No entries for this day.")
 
     def show_entries_list(self, entries):
-        """
-        Display a list of entry titles in a dialog window.
-        
-        This method creates a modal dialog with a list widget to display
-        multiple entry titles when a date has more than one journal entry.
-        
-        Args:
-            entries (list): List of entry titles to display
-        """
+        """Modal dialog with a list of entry titles."""
         # Create modal dialog for displaying entry list
         dialog = QDialog(self)
         dialog.setWindowTitle("Entries")

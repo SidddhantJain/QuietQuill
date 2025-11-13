@@ -1,2 +1,4 @@
 # Ignore encrypted journal entries
 entries/sid/*.enc
+
+QuietQuill_Demo-v.1/

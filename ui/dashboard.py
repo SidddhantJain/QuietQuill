@@ -1,10 +1,4 @@
-"""
-Dashboard Window Module
-
-This module provides the main dashboard interface for the QuietQuill application.
-It serves as the central hub for managing journal entries, accessing various features,
-and navigating between different parts of the application.
-"""
+"""Dashboard: main hub for entries, search, theme, navigation, and account actions."""
 
 import os
 import json
@@ -19,39 +13,10 @@ from ui.editor import EditorWindow
 
 
 class DashboardWindow(QWidget):
-    """
-    The main dashboard window for the QuietQuill application.
-    
-    This window provides a comprehensive interface for managing journal entries
-    and accessing various application features including:
-    - Entry listing and search functionality
-    - Theme switching (light/dark mode)
-    - Entry management (create, open, delete)
-    - Navigation to specialized windows (mood tracker, calendar, stats)
-    - User account management (password change, logout)
-    - Responsive design with gradient styling
-    
-    The dashboard uses a card-based design with gradient backgrounds and shadow
-    effects for a modern, professional appearance that adapts to different themes.
-    
-    Attributes:
-        username (str): The current user's username
-        theme (str): Current UI theme ("light" or "dark")
-        title (QLabel): Welcome message display
-        card_frame (QFrame): Main content container with styling
-        theme_toggle (QCheckBox): Dark mode toggle switch
-        search_bar (QLineEdit): Entry search input field
-        entry_list (QListWidget): List of user's journal entries
-        all_entries (list): Complete list of entries for filtering
-    """
+    """Main app hub: list/search entries, theme toggle, open/create/delete, and navigation."""
     
     def __init__(self, username):
-        """
-        Initialize the DashboardWindow for a specific user.
-        
-        Args:
-            username (str): The username of the current user
-        """
+        """Init with username, theme, and UI setup."""
         super().__init__()
         self.username = username
         self.theme = "light"  # Default theme setting
@@ -61,18 +26,7 @@ class DashboardWindow(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """
-        Set up the user interface components and layout.
-        
-        Creates and configures all UI elements including:
-        - Main layout with card-based design
-        - Welcome title with user's name
-        - Theme toggle for light/dark mode switching
-        - Search bar for entry filtering
-        - Entry list for displaying journal entries
-        - Action buttons for various operations
-        - Responsive styling and event connections
-        """
+        """Build card UI: title, theme toggle, search, entry list, actions, styling."""
         # Main layout setup with no margins for full-screen gradient effect
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)

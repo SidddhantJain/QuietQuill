@@ -1,33 +1,14 @@
-"""
-Mood Tracker Module
-
-This module provides a calendar-based mood tracking system for the QuietQuill application.
-Users can select dates on a calendar and assign emoji moods to track their emotional state
-over time. The mood data is persisted in JSON format for each user.
-"""
+"""Mood tracker: calendar to set emoji moods; persists per-user JSON data."""
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QCalendarWidget, QInputDialog, QMessageBox, QDialog, QGridLayout, QPushButton
 import os, json
 from PyQt5.QtCore import QDate
 
 class EmojiPickerDialog(QDialog):
-    """
-    A dialog window for selecting emoji moods.
-    
-    This dialog presents a grid of emoji buttons that users can click to select
-    their mood for a specific date. The selected emoji is stored and returned
-    to the calling mood tracker window.
-    
-    Attributes:
-        selected_emoji (str): The emoji selected by the user, None if no selection
-    """
+    """Emoji picker dialog with a simple grid of buttons; returns selected emoji."""
     
     def __init__(self):
-        """
-        Initialize the EmojiPickerDialog with default settings.
-        
-        Sets up the dialog window properties and initializes the emoji selection UI.
-        """
+        """Init dialog UI and emoji grid."""
         super().__init__()
         self.setWindowTitle("Select Emoji")
         self.setGeometry(300, 300, 300, 200)
@@ -35,12 +16,7 @@ class EmojiPickerDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        """
-        Set up the user interface for emoji selection.
-        
-        Creates a grid layout with emoji buttons arranged in a 5x2 grid pattern.
-        Each button displays an emoji and connects to the selection handler.
-        """
+        """Build emoji grid (5x2) and connect clicks."""
         layout = QGridLayout()
         
         # Predefined set of common mood emojis
@@ -58,39 +34,15 @@ class EmojiPickerDialog(QDialog):
         self.setLayout(layout)
 
     def select_emoji(self, emoji):
-        """
-        Handle emoji selection and close the dialog.
-        
-        Args:
-            emoji (str): The emoji that was selected by the user
-        """
+        """Set selected emoji and accept dialog."""
         self.selected_emoji = emoji
         self.accept()  # Close dialog with accepted status
 
 class MoodTrackerWindow(QWidget):
-    """
-    A calendar-based mood tracking window for journal users.
-    
-    This window provides a calendar interface where users can:
-    - Click on dates to set mood for that day
-    - View previously set moods as calendar markings
-    - Persist mood data in JSON format
-    - Track emotional patterns over time
-    
-    Attributes:
-        username (str): The username whose moods are being tracked
-        mood_file (str): Path to the JSON file storing mood data
-        mood_data (dict): Dictionary mapping date strings to emoji moods
-        calendar (QCalendarWidget): The main calendar widget for date selection
-    """
+    """Calendar-based mood tracker for a user; stores date→emoji in JSON."""
     
     def __init__(self, username):
-        """
-        Initialize the MoodTrackerWindow for a specific user.
-        
-        Args:
-            username (str): The username whose moods will be tracked
-        """
+        """Init for username and load mood data."""
         super().__init__()
         self.username = username
         self.setWindowTitle("📅 Mood Tracker")
@@ -104,12 +56,7 @@ class MoodTrackerWindow(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """
-        Set up the user interface components for mood tracking.
-        
-        Creates and configures the calendar widget and connects it to the
-        mood selection handler. Also applies any existing mood markings.
-        """
+        """Build calendar, connect click handler, and apply markings."""
         layout = QVBoxLayout()
 
         # Main calendar widget for date selection
@@ -123,13 +70,7 @@ class MoodTrackerWindow(QWidget):
         self.update_calendar_marks()
 
     def load_mood_data(self):
-        """
-        Load mood data from the user's JSON file.
-        
-        Returns:
-            dict: Dictionary mapping date strings (YYYY-MM-DD) to emoji moods,
-                  or empty dict if file doesn't exist or is invalid
-        """
+        """Load mood JSON for user; return dict or {} on error/missing."""
         if os.path.exists(self.mood_file):
             try:
                 with open(self.mood_file, "r") as f:
@@ -140,15 +81,7 @@ class MoodTrackerWindow(QWidget):
         return {}
 
     def set_mood_for_day(self, date: QDate):
-        """
-        Handle mood setting for a selected calendar date.
-        
-        Opens an emoji picker dialog and saves the selected mood for the
-        specified date. Updates the calendar display and persists data.
-        
-        Args:
-            date (QDate): The calendar date that was clicked
-        """
+        """Pick emoji for selected date, save to JSON, refresh indicators."""
         # Convert QDate to string format for storage
         selected_date = date.toString("yyyy-MM-dd")
         
@@ -178,13 +111,7 @@ class MoodTrackerWindow(QWidget):
                 QMessageBox.warning(self, "Error", "Failed to save mood data.")
 
     def update_calendar_marks(self):
-        """
-        Update calendar visual indicators to show dates with mood data.
-        
-        This method applies formatting to calendar dates that have associated
-        mood data, making it easy for users to see which dates have been
-        tracked. Currently uses tooltips to display the mood emoji.
-        """
+        """Apply tooltip indicators to dates with saved moods."""
         # Reset formatting to default for current date
         fmt = self.calendar.dateTextFormat(QDate.currentDate())
         fmt.setFontWeight(0)

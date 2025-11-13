@@ -1,10 +1,4 @@
-"""
-Login Window Module
-
-This module provides the main login interface for the QuietQuill application.
-It handles user authentication with secure password verification and provides
-navigation to registration for new users.
-"""
+"""Login window: minimal, modern UI for user authentication."""
 
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QLineEdit, QPushButton,
@@ -18,28 +12,7 @@ from ui.dashboard import DashboardWindow
 
 
 class LoginWindow(QWidget):
-    """
-    A PyQt5 widget for user authentication with modern UI design.
-    
-    This window provides a login form with the following features:
-    - Username and password input fields
-    - Secure password verification using SHA-256 hashing
-    - Responsive design with gradient styling and shadow effects
-    - Navigation to registration window for new users
-    - Database integration for user authentication
-    - Error handling and user feedback
-    
-    The window uses a card-based design with gradient backgrounds and shadow effects
-    for a modern, professional appearance that scales responsively.
-    
-    Attributes:
-        title (QLabel): Application title display
-        form_frame (QFrame): Container for the login form with styling
-        username_input (QLineEdit): Username input field
-        password_input (QLineEdit): Password input field with hidden text
-        login_btn (QPushButton): Primary login action button
-        register_link (QPushButton): Link to registration window
-    """
+    """PyQt5 login form: username/password inputs, secure check, opens dashboard."""
     
     def __init__(self):
         """
@@ -61,16 +34,7 @@ class LoginWindow(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """
-        Set up the user interface components and layout.
-        
-        Creates and configures all UI elements including:
-        - Main layout with proper spacing and margins
-        - Application title with brand styling
-        - Form frame with gradient background and shadow
-        - Input fields for username and password
-        - Action buttons for login and registration navigation
-        """
+        """Build widgets/layout and apply base styling."""
         # Main layout setup with no margins for full-screen background effect
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -148,24 +112,13 @@ class LoginWindow(QWidget):
         self.apply_dynamic_styles()
 
     def resizeEvent(self, event):
-        """
-        Handle window resize events to maintain responsive design.
-        
-        Args:
-            event: The resize event containing new window dimensions
-        """
+        """Keep styles responsive on resize."""
         # Reapply styles when window is resized for responsive design
         self.apply_dynamic_styles()
         return super().resizeEvent(event)
 
     def apply_dynamic_styles(self):
-        """
-        Apply responsive styling based on current window dimensions.
-        
-        This method calculates scaling factors based on window size and applies
-        appropriate font sizes, padding, and other style properties to maintain
-        a consistent appearance across different screen sizes.
-        """
+        """Apply size‑aware fonts, paddings, and colors."""
         # Calculate scaling based on window dimensions with minimum constraints
         w = max(self.width(), 350)
         h = max(self.height(), 320)
@@ -240,16 +193,7 @@ class LoginWindow(QWidget):
         """)
 
     def handle_login(self):
-        """
-        Handle user login authentication process.
-        
-        This method performs the following operations:
-        1. Validates input fields are not empty
-        2. Queries database for user credentials
-        3. Verifies password using secure hashing
-        4. Opens dashboard on successful authentication
-        5. Provides appropriate error messages for failures
-        """
+        """Validate fields, verify hash in DB, open dashboard or show error."""
         # Get and sanitize input values
         username = self.username_input.text().strip()
         password = self.password_input.text().strip()
@@ -290,12 +234,7 @@ class LoginWindow(QWidget):
             QMessageBox.critical(self, "Error", f"Something went wrong: {str(e)}")
 
     def open_register(self):
-        """
-        Navigate to the registration window.
-        
-        Creates a new RegisterWindow instance, displays it, and closes
-        the current login window. Uses late import to avoid circular imports.
-        """
+        """Open registration window (late import to avoid circular imports)."""
         # Import here to avoid circular imports
         from ui.register_window import RegisterWindow
         self.register_window = RegisterWindow()

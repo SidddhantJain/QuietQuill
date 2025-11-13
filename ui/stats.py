@@ -1,36 +1,12 @@
-"""
-Statistics Window Module
-
-This module provides a statistics window that displays various metrics about
-a user's journal entries, including total entries, word counts, and activity patterns.
-"""
+"""Stats window: show counts, word metrics, most active day, and date range."""
 
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 import os, json
 
 class StatsWindow(QWidget):
-    """
-    A PyQt5 widget that displays statistical information about user's journal entries.
-    
-    This window analyzes metadata files to provide insights such as:
-    - Total number of entries
-    - Longest entry by word count
-    - Average words per entry
-    - Most active writing day
-    - Date range of entries (earliest to latest)
-    
-    Attributes:
-        username (str): The username whose statistics are being displayed
-        entry_dir (str): Path to the directory containing user's entries
-    """
-    
+
     def __init__(self, username):
-        """
-        Initialize the StatsWindow with a specific username.
-        
-        Args:
-            username (str): The username whose statistics will be displayed
-        """
+
         super().__init__()
         self.username = username
         self.setWindowTitle("📊 Entry Statistics")
@@ -41,14 +17,7 @@ class StatsWindow(QWidget):
         self.setup_ui()
 
     def setup_ui(self):
-        """
-        Set up the user interface and calculate statistics from entry metadata.
-        
-        This method:
-        1. Scans the user's entries directory for metadata files
-        2. Calculates various statistics from the metadata
-        3. Creates and displays labels with the calculated statistics
-        """
+       
         layout = QVBoxLayout()
         
         # Initialize statistics variables
